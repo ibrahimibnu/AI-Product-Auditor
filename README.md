@@ -2,7 +2,7 @@
 
 A live, cloud-deployed Multi-Modal AI web application designed to optimize and automate product listing configurations for e-commerce resale marketplaces (e.g., eBay, Poshmark). This production-ready dashboard simultaneously coordinates predictive machine learning models, computer vision networks, and large language model engineering.
 
-🌐 **Live Application:** [Paste your custom Streamlit URL link here]
+🌐 **Live Application:** (https://ibrahimibnu-ai-product-auditor-app-ft7cmh.streamlit.app/)
 
 ---
 
