@@ -159,3 +159,5 @@ with col2:
                 except Exception as e:
                     st.error("Generative layer encountered an error. Verify your API key variable configuration.")
                     st.caption(f"Traceback tracking block: {e}")
+
+#.
