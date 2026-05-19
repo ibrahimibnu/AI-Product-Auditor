@@ -1,3 +1,4 @@
+# app.py
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -9,9 +10,9 @@ from PIL import Image
 # Set up clean layout on your Mac browser
 st.set_page_config(page_title="Multi-Modal AI Dashboard", layout="wide")
 
-
-# LAYER 1: Tabular Machine Learning Pipeline (Our Scaled Scikit-Learn Model)
-
+# =========================================================
+# LAYER 1: Tabular Machine Learning Pipeline Loading
+# =========================================================
 @st.cache_resource
 def load_pricing_pipeline():
     with open("models/pricing_model.pkl", "rb") as f:
@@ -28,6 +29,31 @@ except FileNotFoundError:
 # Header Layout Elements
 st.title("🛍️ Multi-Modal AI E-Commerce Product Auditor")
 st.caption("Native Mac Pipeline: Scaled Linear Regression Pricing + Gemini Multi-Modal Vision Classifier & Copywriter")
+st.markdown("---")
+
+# =========================================================
+# 📖 NEW: USER DESCRIPTION & PLATFORM GUIDE
+# =========================================================
+st.markdown("""
+### Welcome to the Smart Reseller Auditor! 🚀
+This advanced dashboard helps e-commerce sellers evaluate their inventory, verify market value pricing accuracy, and generate instant marketing copy in seconds. 
+
+#### 📈 How to use the tool:
+1. **Upload an image** of your item in the left panel.
+2. **Set your expected price** and use the slider to rate the item's **structural condition** (1.0 = heavily worn, 5.0 = pristine).
+3. Click the **Execute Multi-Stage Analysis** button.
+4. Watch our hybrid AI engine categorize your item, calculate a fair-market price based on historical data, and draft your ad copy!
+""")
+
+# Expandable Technical Background for users who want to know more
+with st.expander("🔍 See how the AI models process your data behind the scenes"):
+    st.markdown("""
+    This website runs an advanced, multi-modal pipeline to protect and optimize your listings:
+    * **Cloud Vision (Gemini 2.5 Flash):** Evaluates your raw image and instantly extracts the domain classification (`Electronics`, `Clothing`, or `Footwear`).
+    * **Predictive Pricing (Scikit-Learn Regression):** Your item's condition rating and the AI-detected category are normalized using a standard Z-score scaler and run through a trained Linear Regression model to find its true financial baseline.
+    * **Automated Copywriter (Generative AI):** Synthesizes all parameters to output a platform-ready, hashtag-optimized ad caption.
+    """)
+
 st.markdown("---")
 
 # Split screen into 2 columns (Left Side: Inputs, Right Side: AI Analytics Engine)
@@ -58,18 +84,17 @@ with col2:
                 temp_path = "temp_prod_image.jpg"
                 img_preview.save(temp_path)
                 
-                # --- NEW INTEGRATED MULTI-MODAL GENAI VISION LAYER ---
-                # We ask Gemini to handle the image categorization logic securely in the cloud
+                # Instruction setup for the zero-shot cloud vision task
                 classification_prompt = (
                     "Look at this product photo. Categorize it into exactly one of these three labels: "
                     "Electronics, Clothing, or Footwear. Return ONLY the category name as a single word."
                 )
                 
                 try:
-                    # Initializes the client via system environment token
+                    # Initializes the client via system environment token safely
                     client = genai.Client()
                     
-                    # Upload the binary image asset using SDK utilities
+                    # Upload the binary image asset using SDK cloud utilities
                     uploaded_vision_file = client.files.upload(file=temp_path)
                     
                     # 1. Ask Gemini to classify the image text label
@@ -82,9 +107,9 @@ with col2:
                     
                     # Map the categorical label back to your Scikit-Learn tabular numerical model indexes
                     categories_map = {'Electronics': 1.0, 'Clothing': 2.0, 'Footwear': 3.0}
-                    detected_category_id = categories_map.get(detected_category, 1.0) # Fallback to 1.0 if variant is unclear
+                    detected_category_id = categories_map.get(detected_category, 1.0)
 
-                    # --- REGRESSION PREDICTION (Matches your exact tabular pipeline scaling steps) ---
+                    # --- REGRESSION PREDICTION ENGINE LOOP ---
                     raw_features = np.array([[condition, detected_category_id]])
                     scaled_features = scaler.transform(raw_features)
                     predicted_fair_price = float(pricing_model.predict(scaled_features)[0])
@@ -127,7 +152,7 @@ with col2:
                     # Render response matching markdown blockquote layout structure
                     st.markdown(f"> {marketing_response.text}")
                     
-                    # Clean up local asset cache
+                    # Clean up local asset cache from workspace disk space
                     if os.path.exists(temp_path):
                         os.remove(temp_path)
                         
