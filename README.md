@@ -2,6 +2,8 @@
 
 An advanced, production-grade e-commerce inventory auditing dashboard designed to help online resellers optimize their listings. This system runs a hybrid, dual-stage artificial intelligence pipeline that cross-examines traditional tabular machine learning logic against generative computer vision networks to accurately evaluate and price marketplace inventory.
 
+🌐 **Live App Link:** (https://ibrahimibnu-ai-product-auditor-app-ft7cmh.streamlit.app/)
+
 ---
 
 ## 🚀 Key Features
