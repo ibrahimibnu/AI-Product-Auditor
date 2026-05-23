@@ -33,9 +33,3 @@ The application processes data through a modern, multi-stage reconciliation pipe
 
 ---
 
-## 📦 Local Installation & Setup
-
-### 1. Clone the Workspace Repository
-```bash
-git clone [https://github.com/YOUR_USERNAME/product-auditor-app.git](https://github.com/YOUR_USERNAME/product-auditor-app.git)
-cd product-auditor-app
