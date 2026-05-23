@@ -1,25 +1,41 @@
 # 🛍️ Multi-Modal AI E-Commerce Product Auditor
 
-A live, cloud-deployed web application that automates and optimizes product listings for online resale marketplaces (like eBay or Poshmark). It combines cloud-native AI vision, a machine learning pricing model, and a generative copywriting engine into a seamless, one-click experience.
-
-🌐 **Live App Link:** (https://ibrahimibnu-ai-product-auditor-app-ft7cmh.streamlit.app/)
+An advanced, production-grade e-commerce inventory auditing dashboard designed to help online resellers optimize their listings. This system runs a hybrid, dual-stage artificial intelligence pipeline that cross-examines traditional tabular machine learning logic against generative computer vision networks to accurately evaluate and price marketplace inventory.
 
 ---
 
-## 🚀 Key Features & Workflow
-When a user uploads a product photo, sets the item's condition rating, and enters a target price, the app executes a multi-stage pipeline:
+## 🚀 Key Features
 
-1. **AI Vision Categorization:** Automatically identifies the product category (`Electronics`, `Clothing`, or `Footwear`) directly from the uploaded image.
-2. **Predictive Machine Learning Pricing:** Feeds the item's condition score and the mapped category data into a custom-trained **Scikit-Learn Regression Model** to calculate an objective fair market value.
-3. **Market Delta Analysis:** Compares the user's proposed price to the calculated market baseline and instantly flags if the item is overpriced or underpriced.
-4. **Automated Copywriter Output:** Uses **Gemini 2.5 Flash** to evaluate the product's visual attributes and parameters, generating a platform-ready marketing description complete with trending hashtags.
+* **Dual-Engine Valuation Pipeline:** Combines traditional predictive algorithms with a real-time Generative AI sanity audit to eliminate category pricing skews.
+* **Multi-Angle Visual Ingestion:** Allows users to drop multiple image files simultaneously for comprehensive computer vision analysis.
+* **Automated Product Profiling:** Instantly extracts the product's domain category and quality metrics using zero-shot classification.
+* **E-Commerce Copywriter:** Synthesizes pricing parameters, item condition, and visual characteristics to generate highly engaging, platform-ready marketing descriptions with trending hashtags.
+* **Premium Dark UI Layout:** Features a fully customized Streamlit frontend with smooth transitions, responsive card containers, and dynamic color-coded visual metrics.
+
+---
+
+## 🧠 Architectural Overview
+
+The application processes data through a modern, multi-stage reconciliation pipeline:
+
+1. **Tabular Predictive Layer:** Uses a Scikit-Learn `LinearRegression` model. Product structural condition scores and categorical data strings are passed through a `StandardScaler` Z-score matrix to predict a foundational baseline value.
+2. **Generative Sanity Check:** The raw mathematical prediction is passed alongside the visual image binaries directly to the `gemini-2.5-flash` model. The AI functions as an online appraiser, dynamically correcting linear skew vectors (e.g., separating mass-market commodities like hand sanitizers or paperbacks from high-value collectibles or textbooks).
+3. **Risk Assessment Output:** Calculates the variance percentage between the seller's target price and the final AI-audited valuation, delivering real-time flags for overpriced or underpriced inventory variance thresholds.
 
 ---
 
-## 📦 Tech Stack
-* **UI & Hosting:** Streamlit (Streamlit Community Cloud)
-* **Generative Core & Vision:** Google GenAI SDK (`gemini-2.5-flash`)
-* **Predictive Analytical Engine:** Scikit-Learn (Linear Regression Core & StandardScaler)
-* **Data Pipelines:** NumPy, Pandas, Pillow (PIL)
+## 🛠️ Tech Stack & Dependencies
+
+* **Frontend Dashboard:** Streamlit (Custom CSS-Injected Layout)
+* **Core ML Layer:** Python 3.9+, Scikit-Learn, NumPy, Pandas
+* **Generative Engine:** Google GenAI SDK (`gemini-2.5-flash`)
+* **Image Processing:** Pillow (PIL)
 
 ---
+
+## 📦 Local Installation & Setup
+
+### 1. Clone the Workspace Repository
+```bash
+git clone [https://github.com/YOUR_USERNAME/product-auditor-app.git](https://github.com/YOUR_USERNAME/product-auditor-app.git)
+cd product-auditor-app
