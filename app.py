@@ -7,6 +7,9 @@ import os
 from google import genai
 from PIL import Image
 
+# Global conversion rate baseline (1 USD to INR)
+USD_TO_INR = 83.50
+
 # Set up clean layout with a wide canvas structure
 st.set_page_config(page_title="Multi-Modal AI Dashboard", layout="wide", initial_sidebar_state="collapsed")
 
@@ -124,7 +127,8 @@ with col1:
 
     st.markdown("### 📊 Metadata Configuration")
     with st.container():
-        user_price = st.number_input("Your Proposed Listing Price ($)", min_value=1.0, value=15.0, step=5.0)
+        # Changed currency text from $ to ₹, updated step sizes for rupee logic
+        user_price_inr = st.number_input("Your Proposed Listing Price (₹)", min_value=10.0, value=500.0, step=50.0)
         st.markdown("<br>", unsafe_allow_html=True)
         condition = st.slider("Product Structural Rating / Condition", min_value=1.0, max_value=5.0, value=4.0, step=0.1)
 
@@ -179,20 +183,20 @@ with col2:
                     }
                     detected_category_id = categories_map.get(detected_category, 1.0)
 
-                    # --- STAGE 1: REGRESSION PREDICTION ---
+                    # --- STAGE 1: REGRESSION PREDICTION (Pass Normalized USD to Model) ---
                     raw_features = np.array([[condition, detected_category_id]])
                     scaled_features = scaler.transform(raw_features)
-                    raw_model_price = float(pricing_model.predict(scaled_features)[0])
+                    raw_model_price_usd = float(pricing_model.predict(scaled_features)[0])
                     
                     # --- STAGE 2: GENERATIVE AI VALUE SANITY AUDIT ---
-                    # Instead of manual code multipliers, we ask Gemini to look at the photo and correct the model
+                    # Instructing Gemini to evaluate and output raw market numbers strictly in USD
                     audit_prompt = (
                         f"You are an expert e-commerce price auditor. A linear regression model looked at this product "
-                        f"and estimated its resale value to be ${raw_model_price:.2f}. "
+                        f"and estimated its resale value to be ${raw_model_price_usd:.2f} USD. "
                         f"Look closely at the image assets provided. If the model's estimate is wildly unrealistic for this "
                         f"specific item (e.g., a simple hand sanitizer or paperback book showing $100), adjust the price "
-                        f"downward or upward to a realistic e-commerce market value. "
-                        f"Return ONLY a valid decimal number representing the corrected fair price. Do not include a dollar sign or any text."
+                        f"downward or upward to a realistic US e-commerce market value. "
+                        f"Return ONLY a valid decimal number representing the corrected fair price in USD. Do not include a dollar sign or any text."
                     )
                     
                     audit_response = client.models.generate_content(
@@ -200,12 +204,13 @@ with col2:
                         contents=[audit_prompt] + vision_payload[1:]
                     )
                     
-                    # Parse Gemini's clean numeric correction safely
                     try:
-                        predicted_fair_price = float(audit_response.text.strip())
+                        predicted_fair_price_usd = float(audit_response.text.strip())
                     except ValueError:
-                        # Fallback to model price if text parsing fails
-                        predicted_fair_price = raw_model_price
+                        predicted_fair_price_usd = raw_model_price_usd
+
+                    # --- CONVERSION LAYER: SCALE VALUES BACK UP TO INR ---
+                    predicted_fair_price_inr = predicted_fair_price_usd * USD_TO_INR
 
                     st.success("✅ Multi-Stage Analysis Complete!")
 
@@ -215,7 +220,7 @@ with col2:
                         st.markdown(f"""
                         * **Identified Asset Type:** `{detected_category}`
                         * **Inspected Physical Quality:** `{condition} / 5.0` 
-                        * **Seller Target Valuation:** `${user_price:.2f}`
+                        * **Seller Target Valuation:** `₹{user_price_inr:.2f}`
                         
                         This product profile has been extracted from your visual assets and successfully verified by our dual-engine network.
                         """)
@@ -227,11 +232,11 @@ with col2:
                         with m_col1:
                             st.metric(label="AI Vision Categorization", value=detected_category)
                         with m_col2:
-                            st.metric(label="AI-Audited Value Estimation", value=f"${predicted_fair_price:.2f}")
+                            st.metric(label="AI-Audited Value Estimation", value=f"₹{predicted_fair_price_inr:.2f}")
                     
                     # Auditing Variance Check System Block
-                    price_gap = user_price - predicted_fair_price
-                    percentage_gap = (price_gap / predicted_fair_price) * 100
+                    price_gap_inr = user_price_inr - predicted_fair_price_inr
+                    percentage_gap = (price_gap_inr / predicted_fair_price_inr) * 100
                     
                     st.markdown("#### ⚖️ Risk Assessment Verdict")
                     if percentage_gap > 10.0:
@@ -247,7 +252,7 @@ with col2:
                     marketing_prompt = (
                         f"Write a short, engaging e-commerce platform product listing description for this item. "
                         f"It is confirmed to be an item of '{detected_category}' with a condition score of {condition}/5.0 "
-                        f"and an attractive price tag of ${user_price:.2f}. Detail its characteristics, value proposition "
+                        f"and an attractive price tag of ₹{user_price_inr:.2f} INR. Detail its characteristics, value proposition "
                         f"based on the provided visual angles, and provide trendy hashtags."
                     )
                     
