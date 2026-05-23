@@ -7,8 +7,70 @@ import os
 from google import genai
 from PIL import Image
 
-# Set up clean layout on your Mac browser
-st.set_page_config(page_title="Multi-Modal AI Dashboard", layout="wide")
+# Set up clean layout with a wide canvas structure
+st.set_page_config(page_title="Multi-Modal AI Dashboard", layout="wide", initial_sidebar_state="collapsed")
+
+# =========================================================
+# CUSTOM PREMIUM UI STYLING (CSS INJECTION)
+# =========================================================
+st.markdown("""
+    <style>
+        /* Main App Background and Typography */
+        .main {
+            background-color: #0d1117;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        /* Modern Card Containers */
+        div[data-testid="stVerticalBlock"] > div:has(div.element-container) {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Beautiful Buttons */
+        .stButton>button {
+            background: linear-gradient(135deg, #2f7fff 0%, #1756ff 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            border: none !important;
+            padding: 0.6rem 2rem !important;
+            transition: all 0.3s ease !important;
+            width: 100%;
+        }
+        .stButton>button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(23, 86, 255, 0.4);
+        }
+        
+        /* Metrics Redesign */
+        div[data-testid="stMetricValue"] {
+            font-size: 2rem !important;
+            font-weight: 700 !important;
+            color: #58a6ff !important;
+        }
+        div[data-testid="stMetricLabel"] {
+            font-size: 0.85rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            color: #8b949e !important;
+        }
+        
+        /* Markdown Blockquote / Copywriter Output Styling */
+        blockquote {
+            background-color: #21262d !important;
+            border-left: 4px solid #58a6ff !important;
+            color: #c9d1d9 !important;
+            padding: 1rem !important;
+            border-radius: 0 8px 8px 0;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 # =========================================================
 # LAYER 1: Tabular Machine Learning Pipeline Loading
@@ -28,136 +90,180 @@ except FileNotFoundError:
 
 # Header Layout Elements
 st.title("🛍️ Multi-Modal AI E-Commerce Product Auditor")
-st.caption("Native Mac Pipeline: Scaled Linear Regression Pricing + Gemini Multi-Modal Vision Classifier & Copywriter")
-st.markdown("---")
+st.caption("Native Mac Pipeline: Scaled Linear Regression Pricing + Gemini Multi-Modal Vision Classifier & AI Price Auditor")
+st.markdown("<hr style='border-color: #30363d;' />", unsafe_allow_html=True)
 
-# =========================================================
-# 📖 NEW: USER DESCRIPTION & PLATFORM GUIDE
-# =========================================================
+# Welcome Guide
 st.markdown("""
 ### Welcome to the Smart Reseller Auditor! 🚀
-This advanced dashboard helps e-commerce sellers evaluate their inventory, verify market value pricing accuracy, and generate instant marketing copy in seconds. 
-
-#### 📈 How to use the tool:
-1. **Upload an image** of your item in the left panel.
-2. **Set your expected price** and use the slider to rate the item's **structural condition** (1.0 = heavily worn, 5.0 = pristine).
-3. Click the **Execute Multi-Stage Analysis** button.
-4. Watch our hybrid AI engine categorize your item, calculate a fair-market price based on historical data, and draft your ad copy!
+This advanced dashboard helps e-commerce sellers evaluate their inventory, verify market value pricing accuracy with dual-stage AI validation, and generate instant marketing copy in seconds. 
 """)
-
-# Expandable Technical Background for users who want to know more
-with st.expander("🔍 See how the AI models process your data behind the scenes"):
-    st.markdown("""
-    This website runs an advanced, multi-modal pipeline to protect and optimize your listings:
-    * **Cloud Vision (Gemini 2.5 Flash):** Evaluates your raw image and instantly extracts the domain classification (`Electronics`, `Clothing`, or `Footwear`).
-    * **Predictive Pricing (Scikit-Learn Regression):** Your item's condition rating and the AI-detected category are normalized using a standard Z-score scaler and run through a trained Linear Regression model to find its true financial baseline.
-    * **Automated Copywriter (Generative AI):** Synthesizes all parameters to output a platform-ready, hashtag-optimized ad caption.
-    """)
 
 st.markdown("---")
 
-# Split screen into 2 columns (Left Side: Inputs, Right Side: AI Analytics Engine)
-col1, col2 = st.columns(2)
+# Split screen into 2 core columns (Left Side: Inputs, Right Side: AI Analytics Engine)
+col1, col2 = st.columns([1.1, 0.9], gap="large")
 
 with col1:
-    st.header("📸 Product Upload & Parameters")
-    uploaded_file = st.file_uploader("Upload product photo...", type=["jpg", "jpeg", "png"])
+    st.markdown("### 📸 Workspace Asset Ingestion")
     
-    if uploaded_file is not None:
-        img_preview = Image.open(uploaded_file)
-        st.image(img_preview, caption="Uploaded Product Preview", use_container_width=True)
-    
-    user_price = st.number_input("Your Proposed Listing Price ($)", min_value=1.0, value=150.0, step=5.0)
-    condition = st.slider("Product Structural Rating / Condition", min_value=1.0, max_value=5.0, value=4.0, step=0.1)
+    with st.container():
+        uploaded_files = st.file_uploader(
+            "Upload product photos (Select multiple angles)...", 
+            type=["jpg", "jpeg", "png"], 
+            accept_multiple_files=True
+        )
+        
+        if uploaded_files:
+            st.markdown("<br>", unsafe_allow_html=True)
+            t_cols = st.columns(min(len(uploaded_files), 4))
+            for idx, file in enumerate(uploaded_files):
+                with t_cols[idx % 4]:
+                    img_preview = Image.open(file)
+                    st.image(img_preview, caption=f"Angle {idx+1}", use_container_width=True)
+
+    st.markdown("### 📊 Metadata Configuration")
+    with st.container():
+        user_price = st.number_input("Your Proposed Listing Price ($)", min_value=1.0, value=15.0, step=5.0)
+        st.markdown("<br>", unsafe_allow_html=True)
+        condition = st.slider("Product Structural Rating / Condition", min_value=1.0, max_value=5.0, value=4.0, step=0.1)
 
 with col2:
-    st.header("🤖 Multi-Modal Evaluation Engine")
+    st.markdown("### 🤖 Intelligence Evaluation Hub")
+    
     run_audit = st.button("🚀 EXECUTE MULTI-STAGE ANALYSIS")
     
     if run_audit:
-        if uploaded_file is None:
-            st.warning("Please upload an image asset first to trigger the computer vision network.")
+        if not uploaded_files:
+            st.warning("Please upload at least one image asset to trigger the computer vision network.")
         else:
-            with st.spinner("Processing pipeline via Google GenAI Engine..."):
+            with st.spinner("Processing multi-image pipeline via Google GenAI Engine..."):
                 
-                # Save uploaded Streamlit file to a temporary file path for cloud processing
-                temp_path = "temp_prod_image.jpg"
-                img_preview.save(temp_path)
-                
-                # Instruction setup for the zero-shot cloud vision task
                 classification_prompt = (
-                    "Look at this product photo. Categorize it into exactly one of these three labels: "
-                    "Electronics, Clothing, or Footwear. Return ONLY the category name as a single word."
+                    "Look at all these uploaded angles of the same single product. "
+                    "Categorize it into exactly one of these seven labels: "
+                    "Electronics, Clothing, Footwear, Books, Video Game Discs, Gaming Consoles, or Health Care. "
+                    "Return ONLY the category name as a single word or space-separated phrase exactly as listed."
                 )
                 
                 try:
-                    # Initializes the client via system environment token safely
                     client = genai.Client()
+                    vision_payload = [classification_prompt]
+                    temp_paths = []
                     
-                    # Upload the binary image asset using SDK cloud utilities
-                    uploaded_vision_file = client.files.upload(file=temp_path)
+                    for idx, file in enumerate(uploaded_files):
+                        temp_path = f"temp_prod_image_{idx}.jpg"
+                        img = Image.open(file)
+                        img.save(temp_path)
+                        temp_paths.append(temp_path)
+                        
+                        uploaded_vision_file = client.files.upload(file=temp_path)
+                        vision_payload.append(uploaded_vision_file)
                     
-                    # 1. Ask Gemini to classify the image text label
+                    # 1. Ask Gemini to classify the item based on ALL images combined
                     vision_response = client.models.generate_content(
                         model='gemini-2.5-flash',
-                        contents=[classification_prompt, uploaded_vision_file]
+                        contents=vision_payload
                     )
                     
                     detected_category = vision_response.text.strip().replace(".", "")
                     
-                    # Map the categorical label back to your Scikit-Learn tabular numerical model indexes
-                    categories_map = {'Electronics': 1.0, 'Clothing': 2.0, 'Footwear': 3.0}
+                    categories_map = {
+                        'Electronics': 1.0, 
+                        'Clothing': 2.0, 
+                        'Footwear': 3.0,
+                        'Books': 4.0,
+                        'Health Care': 4.0,       
+                        'Video Game Discs': 5.0,
+                        'Gaming Consoles': 5.0  
+                    }
                     detected_category_id = categories_map.get(detected_category, 1.0)
 
-                    # --- REGRESSION PREDICTION ENGINE LOOP ---
+                    # --- STAGE 1: REGRESSION PREDICTION ---
                     raw_features = np.array([[condition, detected_category_id]])
                     scaled_features = scaler.transform(raw_features)
-                    predicted_fair_price = float(pricing_model.predict(scaled_features)[0])
+                    raw_model_price = float(pricing_model.predict(scaled_features)[0])
                     
-                    # Calculation metrics display
-                    st.success("✅ Multi-Stage Analysis Complete!")
-                    m_col1, m_col2 = st.columns(2)
-                    with m_col1:
-                        st.metric(label="AI Vision Categorization", value=detected_category)
-                    with m_col2:
-                        st.metric(label="Regression Value Estimation", value=f"${predicted_fair_price:.2f}")
+                    # --- STAGE 2: GENERATIVE AI VALUE SANITY AUDIT ---
+                    # Instead of manual code multipliers, we ask Gemini to look at the photo and correct the model
+                    audit_prompt = (
+                        f"You are an expert e-commerce price auditor. A linear regression model looked at this product "
+                        f"and estimated its resale value to be ${raw_model_price:.2f}. "
+                        f"Look closely at the image assets provided. If the model's estimate is wildly unrealistic for this "
+                        f"specific item (e.g., a simple hand sanitizer or paperback book showing $100), adjust the price "
+                        f"downward or upward to a realistic e-commerce market value. "
+                        f"Return ONLY a valid decimal number representing the corrected fair price. Do not include a dollar sign or any text."
+                    )
                     
-                    # Alert calculation variance check
-                    price_gap = user_price - predicted_fair_price
-                    if price_gap > 15:
-                        st.warning(f"📈 Overpriced variant (Listed ${price_gap:.2f} higher than standard target expectations).")
-                    elif price_gap < -15:
-                        st.error(f"📉 Underpriced variant (Listed ${abs(price_gap):.2f} lower than standard target expectations).")
-                    else:
-                        st.info("⚖️ Fair market baseline distribution matched.")
+                    audit_response = client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=[audit_prompt] + vision_payload[1:]
+                    )
+                    
+                    # Parse Gemini's clean numeric correction safely
+                    try:
+                        predicted_fair_price = float(audit_response.text.strip())
+                    except ValueError:
+                        # Fallback to model price if text parsing fails
+                        predicted_fair_price = raw_model_price
 
-                    st.markdown("---")
+                    st.success("✅ Multi-Stage Analysis Complete!")
+
+                    # Profile Summary Card
+                    st.markdown("#### 📦 Product Profile Summary")
+                    with st.container():
+                        st.markdown(f"""
+                        * **Identified Asset Type:** `{detected_category}`
+                        * **Inspected Physical Quality:** `{condition} / 5.0` 
+                        * **Seller Target Valuation:** `${user_price:.2f}`
+                        
+                        This product profile has been extracted from your visual assets and successfully verified by our dual-engine network.
+                        """)
+
+                    # Render Metrics Dashboard Inside Clean Cards
+                    st.markdown("#### 📈 Model Metrics Reconciliation")
+                    with st.container():
+                        m_col1, m_col2 = st.columns(2)
+                        with m_col1:
+                            st.metric(label="AI Vision Categorization", value=detected_category)
+                        with m_col2:
+                            st.metric(label="AI-Audited Value Estimation", value=f"${predicted_fair_price:.2f}")
+                    
+                    # Auditing Variance Check System Block
+                    price_gap = user_price - predicted_fair_price
+                    percentage_gap = (price_gap / predicted_fair_price) * 100
+                    
+                    st.markdown("#### ⚖️ Risk Assessment Verdict")
+                    if percentage_gap > 10.0:
+                        st.warning(f"📈 Overpriced variant (Listed {percentage_gap:.1f}% higher than standard market target expectations).")
+                    elif percentage_gap < -10.0:
+                        st.error(f"📉 Underpriced variant (Listed {abs(percentage_gap):.1f}% lower than standard market target expectations).")
+                    else:
+                        st.info("⚖️ Fair market baseline distribution matched (Within ±10% acceptable tolerance threshold).")
 
                     # --- GENERATIVE AI MARKETING COPYWRITER ---
-                    st.subheader("✍️ Automated Copywriter Output")
+                    st.markdown("<br>✍️ Engine Optimized Ad Copy", unsafe_allow_html=True)
                     
                     marketing_prompt = (
                         f"Write a short, engaging e-commerce platform product listing description for this item. "
                         f"It is confirmed to be an item of '{detected_category}' with a condition score of {condition}/5.0 "
-                        f"and an attractive price tag of ${user_price:.2f}. Detail its characteristics, value proposition, "
-                        f"and provide trendy hashtags."
+                        f"and an attractive price tag of ${user_price:.2f}. Detail its characteristics, value proposition "
+                        f"based on the provided visual angles, and provide trendy hashtags."
                     )
                     
-                    # 2. Ask Gemini to output the marketing ad layout
                     marketing_response = client.models.generate_content(
                         model='gemini-2.5-flash',
-                        contents=[marketing_prompt, uploaded_vision_file]
+                        contents=[marketing_prompt] + vision_payload[1:]
                     )
                     
-                    # Render response matching markdown blockquote layout structure
-                    st.markdown(f"> {marketing_response.text}")
+                    with st.container():
+                        st.markdown(f"> {marketing_response.text}")
                     
-                    # Clean up local asset cache from workspace disk space
-                    if os.path.exists(temp_path):
-                        os.remove(temp_path)
-                        
+                    # Clean up local image asset caches
+                    for path in temp_paths:
+                        if os.path.exists(path):
+                            os.remove(path)
+                            
                 except Exception as e:
                     st.error("Generative layer encountered an error. Verify your API key variable configuration.")
                     st.caption(f"Traceback tracking block: {e}")
-
-#.
